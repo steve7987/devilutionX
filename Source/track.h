@@ -2,6 +2,8 @@
 #ifndef __TRACK_H__
 #define __TRACK_H__
 
+//void track_process_attack();
+//void track_repeat_attack(BOOL rep);
 void track_process();
 void track_repeat_walk(BOOL rep);
 BOOL track_isscrolling();

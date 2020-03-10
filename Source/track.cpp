@@ -2,21 +2,24 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-static BYTE sgbIsScrolling;
-static DWORD sgdwLastWalk;
-static BOOL sgbIsWalking;
+static BYTE sgbIsScrolling; //are we in scrolling mode (i.e. not just a single click to move)
+static DWORD sgdwLastWalk;  //time the last walk command was issued
+static BOOL sgbIsWalking;   //are we walking
 
 void track_process()
 {
-	if (!sgbIsWalking)
+	if (!sgbIsWalking)  
 		return;
 
-	if (cursmx < 0 || cursmx >= MAXDUNX - 1 || cursmy < 0 || cursmy >= MAXDUNY - 1)
+	if (cursmx < 0 || cursmx >= MAXDUNX - 1 || cursmy < 0 || cursmy >= MAXDUNY - 1)  //cursor out of bounds
 		return;
 
-	if (plr[myplr]._pVar8 <= 6 && plr[myplr]._pmode != PM_STAND)
+	//what is this checking??
+	//if were not standing and early in an animation?? (8 is duration of some animations)
+	if (plr[myplr]._pVar8 <= 6 && plr[myplr]._pmode != PM_STAND)   
 		return;
 
+	//if the mouse have moved, send a new move command and set scrolling to true
 	if (cursmx != plr[myplr]._ptargx || cursmy != plr[myplr]._ptargy) {
 		DWORD tick = SDL_GetTicks();
 		if ((int)(tick - sgdwLastWalk) >= 300) {

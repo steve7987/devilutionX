@@ -36,8 +36,12 @@ int sgnTimeoutCurs;
 char sgbMouseDown;
 int color_cycle_timer;
 
+//auto attack vars
+BOOL repeatLeftClick;
+BOOL attackInPlace;
+
 //hotkey variables
-int keybindings[4];
+int keybindings[5];  
 
 /* rdata */
 
@@ -144,7 +148,10 @@ static bool ProcessInput()
 #endif
 		CheckCursMove();
 		plrctrls_after_check_curs_move();
-		track_process();
+		track_process();  //do auto walking if needed
+        if (repeatLeftClick) {  //if repeat attack flag is set, try to attack/move to mouse pos
+            TryLeftClickDungeonCommand(attackInPlace);
+        }
 	}
 
 	return true;
@@ -231,6 +238,8 @@ void start_game(unsigned int uMsg)
 	sgnTimeoutCurs = 0;
 	sgbMouseDown = 0;
 	track_repeat_walk(FALSE);
+    repeatLeftClick = FALSE;
+    attackInPlace = FALSE;
 }
 
 void free_game()
@@ -279,10 +288,11 @@ void diablo_init()
 	atexit(effects_cleanup_sfx);
 
     //setup hotkeys
-    keybindings[0] = 0x57;
-    keybindings[1] = 0x45;
-    keybindings[2] = 0x52;
-    keybindings[3] = 0x54;
+    keybindings[HK_SPELL_ZERO] = 0x57;
+    keybindings[HK_SPELL_ONE] = 0x45;
+    keybindings[HK_SPELL_TWO] = 0x52;
+    keybindings[HK_SPELL_THREE] = 0x54;
+    keybindings[HK_ATTACK_IN_PLACE] = 0xA0;
 }
 
 void diablo_splash()
@@ -547,7 +557,7 @@ LRESULT GM_Game(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		GetMousePos(lParam);
 		if (sgbMouseDown == 0) {
 			sgbMouseDown = 1;
-			track_repeat_walk(LeftMouseDown(wParam));
+			LeftMouseDown(wParam);
 		}
 		return 0;
 	case WM_LBUTTONUP:
@@ -556,6 +566,7 @@ LRESULT GM_Game(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			sgbMouseDown = 0;
 			LeftMouseUp();
 			track_repeat_walk(FALSE);
+            repeatLeftClick = FALSE;
 		}
 		return 0;
 	case WM_RBUTTONDOWN:
@@ -575,6 +586,7 @@ LRESULT GM_Game(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		if (hWnd != (HWND)lParam) {
 			sgbMouseDown = 0;
 			track_repeat_walk(FALSE);
+            repeatLeftClick = FALSE;
 		}
 		break;
 	case WM_DIABNEXTLVL:
@@ -592,6 +604,7 @@ LRESULT GM_Game(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		FreeMonsterSnd();
 		music_stop();
 		track_repeat_walk(FALSE);
+        repeatLeftClick = FALSE;
 		sgbMouseDown = 0;
 		ShowProgress(uMsg);
 		force_redraw = 255;
@@ -608,10 +621,6 @@ LRESULT GM_Game(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 BOOL LeftMouseDown(int wParam)
 {
-	#ifdef _DEBUG
-	sprintf(tempstr, "Mouse pressed %i", wParam);
-	NetSendCmdString(1 << myplr, tempstr);
-	#endif
 	if (!gmenu_left_mouse(TRUE) && !control_check_talk_btn() && !sgnTimeoutCurs) {
 		if (deathflag) {
 			control_check_btn_press();
@@ -645,7 +654,7 @@ BOOL LeftMouseDown(int wParam)
 						if (plr[myplr]._pStatPts && !spselflag)
 							CheckLvlBtn();
 						if (!lvlbtndown)
-							return LeftMouseCmd(wParam == MK_SHIFT + MK_LBUTTON);
+                            return LeftMouseCmd(attackInPlace);
 					}
 				}
 			} else {
@@ -672,48 +681,77 @@ BOOL LeftMouseCmd(BOOL bShift)
 			NetSendCmdLocParam1(TRUE, invflag ? CMD_GOTOGETITEM : CMD_GOTOAGETITEM, cursmx, cursmy, pcursitem);
 		if (pcursmonst != -1)
 			NetSendCmdLocParam1(TRUE, CMD_TALKXY, cursmx, cursmy, pcursmonst);
-		if (pcursitem == -1 && pcursmonst == -1 && pcursplr == -1)
-			return TRUE;
+		if (pcursitem == -1 && pcursmonst == -1 && pcursplr == -1){  //turn on track walk in town
+            track_repeat_walk(TRUE);
+        }
 	} else {
 		bNear = abs(plr[myplr].WorldX - cursmx) < 2 && abs(plr[myplr].WorldY - cursmy) < 2;
-		if (pcursitem != -1 && pcurs == CURSOR_HAND && !bShift) {
+		if (pcursitem != -1 && pcurs == CURSOR_HAND && !bShift) {  //pick up item
 			NetSendCmdLocParam1(TRUE, invflag ? CMD_GOTOGETITEM : CMD_GOTOAGETITEM, cursmx, cursmy, pcursitem);
-		} else if (pcursobj != -1 && (!bShift || bNear && object[pcursobj]._oBreak == 1)) {
+		} 
+        else if (pcursobj != -1 && (!bShift || bNear && object[pcursobj]._oBreak == 1)) {  //drop item?
 			NetSendCmdLocParam1(TRUE, pcurs == CURSOR_DISARM ? CMD_DISARMXY : CMD_OPOBJXY, cursmx, cursmy, pcursobj);
-		} else if (plr[myplr]._pwtype == WT_RANGED) {
-			if (bShift) {
-				NetSendCmdLoc(TRUE, CMD_RATTACKXY, cursmx, cursmy);
-			} else if (pcursmonst != -1) {
-				if (CanTalkToMonst(pcursmonst)) {
-					NetSendCmdParam1(TRUE, CMD_ATTACKID, pcursmonst);
-				} else {
-					NetSendCmdParam1(TRUE, CMD_RATTACKID, pcursmonst);
-				}
-			} else if (pcursplr != -1 && !FriendlyMode) {
-				NetSendCmdParam1(TRUE, CMD_RATTACKPID, pcursplr);
-			}
-		} else {
-			if (bShift) {
-				if (pcursmonst != -1) {
-					if (CanTalkToMonst(pcursmonst)) {
-						NetSendCmdParam1(TRUE, CMD_ATTACKID, pcursmonst);
-					} else {
-						NetSendCmdLoc(TRUE, CMD_SATTACKXY, cursmx, cursmy);
-					}
-				} else {
-					NetSendCmdLoc(TRUE, CMD_SATTACKXY, cursmx, cursmy);
-				}
-			} else if (pcursmonst != -1) {
-				NetSendCmdParam1(TRUE, CMD_ATTACKID, pcursmonst);
-			} else if (pcursplr != -1 && !FriendlyMode) {
-				NetSendCmdParam1(TRUE, CMD_ATTACKPID, pcursplr);
-			}
+		} 
+        else if (TryLeftClickDungeonCommand(bShift)) {  //check for attack/walk
+			repeatLeftClick = TRUE;
+            return FALSE;
 		}
-		if (!bShift && pcursitem == -1 && pcursobj == -1 && pcursmonst == -1 && pcursplr == -1)
-			return TRUE;
 	}
 
 	return FALSE;
+}
+
+//returns true if we should attack, false otherwise
+BOOL TryLeftClickDungeonCommand(BOOL bShift) {
+    if (leveltype == DTYPE_TOWN) {
+        return FALSE;
+    }
+    if (plr[myplr]._pwtype == WT_RANGED) {  //ranged attack
+        if (bShift) {
+            NetSendCmdLoc(TRUE, CMD_RATTACKXY, cursmx, cursmy);  //shift down, shoot to a given cursor spot
+            return TRUE;
+        } else if (pcursmonst != -1) {  
+            if (CanTalkToMonst(pcursmonst)) {
+                NetSendCmdParam1(TRUE, CMD_ATTACKID, pcursmonst);  //for talking to monsters (e.g. gharbad)
+                return TRUE;
+            } else {
+                NetSendCmdParam1(TRUE, CMD_RATTACKID, pcursmonst);  //shoot at the other monsters
+                return TRUE;
+            }
+        } else if (pcursplr != -1 && !FriendlyMode) {  //shoot at another player
+            NetSendCmdParam1(TRUE, CMD_RATTACKPID, pcursplr);
+            return TRUE;
+        }
+    } else {  //melee weapon type?
+        if (bShift) {
+            if (pcursmonst != -1) {
+                if (CanTalkToMonst(pcursmonst)) {  //shift and have a monster target
+                    NetSendCmdParam1(TRUE, CMD_ATTACKID, pcursmonst); //talk to it
+                    return TRUE;
+                } else {
+                    //track_repeat_attack(TRUE);
+                    NetSendCmdLoc(TRUE, CMD_SATTACKXY, cursmx, cursmy);  //or attack it
+                    return TRUE;
+                }
+            } else {
+                //track_repeat_attack(TRUE);
+                NetSendCmdLoc(TRUE, CMD_SATTACKXY, cursmx, cursmy);  //no target, just attack mouse target
+                return TRUE;
+            }
+        } else if (pcursmonst != -1) {
+            NetSendCmdParam1(TRUE, CMD_ATTACKID, pcursmonst);  //attack monster (may move to it first)
+            return TRUE;
+        } else if (pcursplr != -1 && !FriendlyMode) {
+            NetSendCmdParam1(TRUE, CMD_ATTACKPID, pcursplr);  //attack another player
+            return TRUE;
+        }
+    }
+    //check for walking
+    if (!bShift && pcursitem == -1 && pcursobj == -1 && pcursmonst == -1 && pcursplr == -1) {
+        track_repeat_walk(TRUE);
+        return TRUE;
+    }
+    return FALSE;
 }
 
 BOOL TryIconCurs()
@@ -830,6 +868,22 @@ void diablo_hotkey_msg(DWORD dwMsg)
 
 void ReleaseKey(int vkey)
 {
+    /*
+    sprintf(tempstr, "ReleaseKey %i", vkey);
+    NetSendCmdString(1 << myplr, tempstr);
+    */
+    if (vkey == keybindings[HK_ATTACK_IN_PLACE]){
+        attackInPlace = FALSE;
+        if (repeatLeftClick){
+            if (TryLeftClickDungeonCommand(FALSE)) {
+                return;
+            }
+            if (pcursitem == -1 && pcursobj == -1 && pcursmonst == -1 && pcursplr == -1) {
+                track_repeat_walk(TRUE);
+                repeatLeftClick = FALSE;
+            }
+        }
+    }
 	if (vkey == VK_SNAPSHOT)
 		CaptureScreen();
 }
@@ -867,6 +921,7 @@ void PressKey(int vkey)
 	if (vkey == VK_ESCAPE) {
 		if (!PressEscKey()) {
 			track_repeat_walk(FALSE);
+            repeatLeftClick = FALSE;
 			gamemenu_on();
 		}
 		return;
@@ -901,6 +956,7 @@ void PressKey(int vkey)
 			AddPanelString("No help available", TRUE); /// BUGFIX: message isn't displayed
 			AddPanelString("while in stores", TRUE);
 			track_repeat_walk(FALSE);
+            repeatLeftClick = FALSE;
 		} else {
 			invflag = FALSE;
 			chrflag = FALSE;
@@ -1040,6 +1096,15 @@ void PressKey(int vkey)
 		gamemenu_off();
 		doom_close();
 	}
+    else if (vkey == keybindings[HK_ATTACK_IN_PLACE]) {
+        attackInPlace = TRUE;
+        if (track_isscrolling()) {
+            if (TryLeftClickDungeonCommand(TRUE)) {
+                track_repeat_walk(FALSE);
+                repeatLeftClick = TRUE;
+            }
+        }
+    }
 }
 
 void diablo_pause_game()
@@ -1051,6 +1116,7 @@ void diablo_pause_game()
 			PauseMode = 2;
 			FreeMonsterSnd();
 			track_repeat_walk(FALSE);
+            repeatLeftClick = FALSE;
 		}
 		force_redraw = 255;
 	}
@@ -1144,6 +1210,7 @@ void PressChar(int vkey)
 				spselflag = FALSE;
 			}
 			track_repeat_walk(FALSE);
+            repeatLeftClick = FALSE;
 		}
 		return;
 	case 'B':

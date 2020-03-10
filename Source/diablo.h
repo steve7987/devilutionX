@@ -37,7 +37,7 @@ extern char sgbMouseDown;
 extern int color_cycle_timer;
 
 //hotkey variables
-extern int keybindings[4];
+extern int keybindings[5];
 
 void FreeGameMem();
 BOOL StartGame(BOOL bNewGame, BOOL bSinglePlayer);
@@ -53,6 +53,7 @@ LRESULT DisableInputWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 LRESULT GM_Game(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 BOOL LeftMouseDown(int wParam);
 BOOL LeftMouseCmd(BOOL bShift);
+BOOL TryLeftClickDungeonCommand(BOOL bShift);
 BOOL TryIconCurs();
 void LeftMouseUp();
 void RightMouseDown();

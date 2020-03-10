@@ -1,3 +1,11 @@
+typedef enum hotkey_value {
+	HK_SPELL_ZERO = 0,  //the hotkeys need to be 0-3 or change in control.cpp
+	HK_SPELL_ONE = 1,
+	HK_SPELL_TWO = 2,
+	HK_SPELL_THREE = 3,
+	HK_ATTACK_IN_PLACE = 4,
+} hotkey_value;
+
 typedef enum item_quality {
 	ITEM_QUALITY_NORMAL = 0,
 	ITEM_QUALITY_MAGIC  = 1,
