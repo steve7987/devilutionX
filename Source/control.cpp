@@ -386,10 +386,16 @@ void DrawSpellList()
 					AddPanelString(tempstr, TRUE);
 					break;
 				}
+				//Displaying hotkey over spell?
+				
 				for (t = 0; t < 4; t++) {
 					if (plr[myplr]._pSplHotKey[t] == pSpell && plr[myplr]._pSplTHotKey[t] == pSplType) {
-						DrawSpellCel(x, y, pSpellCels, t + 48, 56);
-						sprintf(tempstr, "Spell Hot Key #F%i", t + 5);
+						//the t + 48 controls which item in the pSpellCels sheet to draw, think the four hotkeys are somewhat hardcoded there
+						//DrawSpellCel(x, y, pSpellCels, 48 + t, 56);  
+						//can use print char to print any character we want to that spot (doesn't look as good tho)
+						PrintChar(x + 41, y - 41, keybindings[t] - 0x40, COL_GOLD);
+
+						sprintf(tempstr, "Spell Hot Key: %c", keybindings[t]);  //string in main box for hotkey spell desc
 						AddPanelString(tempstr, TRUE);
 					}
 				}

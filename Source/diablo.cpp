@@ -36,6 +36,9 @@ int sgnTimeoutCurs;
 char sgbMouseDown;
 int color_cycle_timer;
 
+//hotkey variables
+int keybindings[4];
+
 /* rdata */
 
 BOOL fullscreen = TRUE;
@@ -274,6 +277,12 @@ void diablo_init()
 	atexit(sound_cleanup);
 	sound_init();
 	atexit(effects_cleanup_sfx);
+
+    //setup hotkeys
+    keybindings[0] = 0x57;
+    keybindings[1] = 0x45;
+    keybindings[2] = 0x52;
+    keybindings[3] = 0x54;
 }
 
 void diablo_splash()
@@ -599,6 +608,10 @@ LRESULT GM_Game(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 BOOL LeftMouseDown(int wParam)
 {
+	#ifdef _DEBUG
+	sprintf(tempstr, "Mouse pressed %i", wParam);
+	NetSendCmdString(1 << myplr, tempstr);
+	#endif
 	if (!gmenu_left_mouse(TRUE) && !control_check_talk_btn() && !sgnTimeoutCurs) {
 		if (deathflag) {
 			control_check_btn_press();
@@ -823,6 +836,7 @@ void ReleaseKey(int vkey)
 
 void PressKey(int vkey)
 {
+
 	if (gmenu_presskeys(vkey) || control_presskeys(vkey)) {
 		return;
 	}
@@ -919,7 +933,7 @@ void PressKey(int vkey)
 			    item[pcursitem]._iCreateInfo);
 			NetSendCmdString(1 << myplr, tempstr);
 		}
-		sprintf(tempstr, "Numitems : %i", numitems);
+		sprintf(tempstr, ":  Numitems : %i", numitems);
 		NetSendCmdString(1 << myplr, tempstr);
 	}
 #endif
@@ -928,28 +942,30 @@ void PressKey(int vkey)
 		PrintDebugQuest();
 	}
 #endif
-	else if (vkey == VK_F5) {
+
+    //changing the hotkeys for spells
+	else if (vkey == keybindings[0]) {
 		if (spselflag) {
 			SetSpeedSpell(0);
 			return;
 		}
 		ToggleSpell(0);
 		return;
-	} else if (vkey == VK_F6) {
+	} else if (vkey == keybindings[1]) {
 		if (spselflag) {
 			SetSpeedSpell(1);
 			return;
 		}
 		ToggleSpell(1);
 		return;
-	} else if (vkey == VK_F7) {
+	} else if (vkey == keybindings[2]) {
 		if (spselflag) {
 			SetSpeedSpell(2);
 			return;
 		}
 		ToggleSpell(2);
 		return;
-	} else if (vkey == VK_F8) {
+	} else if (vkey == keybindings[3]) {
 		if (spselflag) {
 			SetSpeedSpell(3);
 			return;

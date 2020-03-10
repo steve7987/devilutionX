@@ -117,8 +117,46 @@ constexpr auto DVL_VK_DOWN = 0x28;     // DOWN ARROW key
 constexpr auto DVL_VK_SNAPSHOT = 0x2C; // PRINT SCREEN key
 constexpr auto DVL_VK_INSERT = 0x2D;   // INS key
 constexpr auto DVL_VK_DELETE = 0x2E;   // DEL key
+
 // DVL_VK_0 through DVL_VK_9 correspond to '0' - '9'
+constexpr auto DVL_VK_0 = 0x30;
+constexpr auto DVL_VK_1 = 0x31;
+constexpr auto DVL_VK_2 = 0x32;
+constexpr auto DVL_VK_3 = 0x33;
+constexpr auto DVL_VK_4 = 0x34;
+constexpr auto DVL_VK_5 = 0x35;
+constexpr auto DVL_VK_6 = 0x36;
+constexpr auto DVL_VK_7 = 0x37;
+constexpr auto DVL_VK_8 = 0x38;
+constexpr auto DVL_VK_9 = 0x39;
 // DVL_VK_A through DVL_VK_Z correspond to 'A' - 'Z'
+constexpr auto DVL_VK_A = 0x41;
+constexpr auto DVL_VK_B = 0x42;
+constexpr auto DVL_VK_C = 0x43;
+constexpr auto DVL_VK_D = 0x44;
+constexpr auto DVL_VK_E = 0x45;
+constexpr auto DVL_VK_F = 0x46;
+constexpr auto DVL_VK_G = 0x47;
+constexpr auto DVL_VK_H = 0x48;
+constexpr auto DVL_VK_I = 0x49;
+constexpr auto DVL_VK_J = 0x4A;
+constexpr auto DVL_VK_K = 0x4B;
+constexpr auto DVL_VK_L = 0x4C;
+constexpr auto DVL_VK_M = 0x4D;
+constexpr auto DVL_VK_N = 0x4E;
+constexpr auto DVL_VK_O = 0x4F;
+constexpr auto DVL_VK_P = 0x50;
+constexpr auto DVL_VK_Q = 0x51;
+constexpr auto DVL_VK_R = 0x52;
+constexpr auto DVL_VK_S = 0x53;
+constexpr auto DVL_VK_T = 0x54;
+constexpr auto DVL_VK_U = 0x55;
+constexpr auto DVL_VK_V = 0x56;
+constexpr auto DVL_VK_W = 0x57;
+constexpr auto DVL_VK_X = 0x58;
+constexpr auto DVL_VK_Y = 0x59;
+constexpr auto DVL_VK_Z = 0x5A;
+
 constexpr auto DVL_VK_LWIN = 0x5B;       // Left Windows key (Natural keyboard)
 constexpr auto DVL_VK_RWIN = 0x5C;       // Right Windows key (Natural keyboard)
 constexpr auto DVL_VK_NUMPAD0 = 0x60;    // Numeric keypad 0 key

@@ -1,6 +1,10 @@
 #ifndef __DIABLO_H__
 #define __DIABLO_H__
 
+#ifndef _DEBUG
+#define _DEBUG
+#endif
+
 extern HWND ghMainWnd;
 extern int glMid1Seed[NUMLEVELS];
 extern int glMid2Seed[NUMLEVELS];
@@ -31,6 +35,9 @@ extern int debugmonsttypes;
 extern int PauseMode;
 extern char sgbMouseDown;
 extern int color_cycle_timer;
+
+//hotkey variables
+extern int keybindings[4];
 
 void FreeGameMem();
 BOOL StartGame(BOOL bNewGame, BOOL bSinglePlayer);

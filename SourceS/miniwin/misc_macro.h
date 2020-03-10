@@ -67,7 +67,44 @@
 #define VK_INSERT DVL_VK_INSERT     // INS key
 #define VK_DELETE DVL_VK_DELETE     // DEL key
 // VK_0 through VK_9 correspond to '0' - '9'
+#define VK_0 DVL_VK_0
+#define VK_1 DVL_VK_1
+#define VK_2 DVL_VK_2
+#define VK_3 DVL_VK_3
+#define VK_4 DVL_VK_4
+#define VK_5 DVL_VK_5
+#define VK_6 DVL_VK_6
+#define VK_7 DVL_VK_7
+#define VK_8 DVL_VK_8
+#define VK_9 DVL_VK_9
 // VK_A through VK_Z correspond to 'A' - 'Z'
+#define VK_A DVL_VK_A
+#define VK_B DVL_VK_B
+#define VK_C DVL_VK_C
+#define VK_D DVL_VK_D
+#define VK_E DVL_VK_E
+#define VK_F DVL_VK_F
+#define VK_G DVL_VK_G
+#define VK_H DVL_VK_H
+#define VK_I DVL_VK_I
+#define VK_J DVL_VK_J
+#define VK_K DVL_VK_K
+#define VK_L DVL_VK_L
+#define VK_M DVL_VK_M
+#define VK_N DVL_VK_N
+#define VK_O DVL_VK_O
+#define VK_P DVL_VK_P
+#define VK_Q DVL_VK_Q
+#define VK_R DVL_VK_R
+#define VK_S DVL_VK_S
+#define VK_T DVL_VK_T
+#define VK_U DVL_VK_U
+#define VK_V DVL_VK_V
+#define VK_W DVL_VK_W
+#define VK_X DVL_VK_X
+#define VK_Y DVL_VK_Y
+#define VK_Z DVL_VK_Z
+
 #define VK_LWIN DVL_VK_LWIN             // Left Windows key (Natural keyboard)
 #define VK_RWIN DVL_VK_RWIN             // Right Windows key (Natural keyboard)
 #define VK_NUMPAD0 DVL_VK_NUMPAD0       // Numeric keypad 0 key
