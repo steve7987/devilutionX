@@ -154,7 +154,7 @@ static bool ProcessInput()
 		plrctrls_after_check_curs_move();
 		track_process();  //do auto walking if needed
         DWORD tick = SDL_GetTicks();
-        if (repeatLeftClick && tick - lastLeftClickTime >= 50 && (plr[myplr]._pVar8 > 6 || plr[myplr]._pmode == PM_STAND)) {  //if repeat attack flag is set, try to attack/move to mouse pos
+        if (repeatLeftClick && tick - lastLeftClickTime >= 5) {  //if repeat attack flag is set, try to attack/move to mouse pos
             TryLeftClickDungeonCommand(attackInPlace);
             lastLeftClickTime = tick;
         }
@@ -1264,43 +1264,43 @@ void PressChar(int vkey)
 		return;
 	case '!':
 	case '1':
-		if (plr[myplr].SpdList[0]._itype != ITYPE_NONE && plr[myplr].SpdList[0]._itype != ITYPE_GOLD) {
+		if (plr[myplr].SpdList[0]._itype != ITYPE_NONE && plr[myplr].SpdList[0]._itype != ITYPE_GOLD && !((repeatLeftClick || repeatRightClick) && plr[myplr].SpdList[0]._iMiscId == IMISC_SCROLL)) {
 			UseInvItem(myplr, INVITEM_BELT_FIRST);
 		}
 		return;
 	case '@':
 	case '2':
-		if (plr[myplr].SpdList[1]._itype != ITYPE_NONE && plr[myplr].SpdList[1]._itype != ITYPE_GOLD) {
+		if (plr[myplr].SpdList[1]._itype != ITYPE_NONE && plr[myplr].SpdList[1]._itype != ITYPE_GOLD && !((repeatLeftClick || repeatRightClick) && plr[myplr].SpdList[1]._iMiscId == IMISC_SCROLL)) {
 			UseInvItem(myplr, INVITEM_BELT_FIRST + 1);
 		}
 		return;
 	case '#':
 	case '3':
-		if (plr[myplr].SpdList[2]._itype != ITYPE_NONE && plr[myplr].SpdList[2]._itype != ITYPE_GOLD) {
+		if (plr[myplr].SpdList[2]._itype != ITYPE_NONE && plr[myplr].SpdList[2]._itype != ITYPE_GOLD && !((repeatLeftClick || repeatRightClick) && plr[myplr].SpdList[2]._iMiscId == IMISC_SCROLL)) {
 			UseInvItem(myplr, INVITEM_BELT_FIRST + 2);
 		}
 		return;
 	case '$':
 	case '4':
-		if (plr[myplr].SpdList[3]._itype != ITYPE_NONE && plr[myplr].SpdList[3]._itype != ITYPE_GOLD) {
+		if (plr[myplr].SpdList[3]._itype != ITYPE_NONE && plr[myplr].SpdList[3]._itype != ITYPE_GOLD && !((repeatLeftClick || repeatRightClick) && plr[myplr].SpdList[3]._iMiscId == IMISC_SCROLL)) {
 			UseInvItem(myplr, INVITEM_BELT_FIRST + 3);
 		}
 		return;
 	case '%':
 	case '5':
-		if (plr[myplr].SpdList[4]._itype != ITYPE_NONE && plr[myplr].SpdList[4]._itype != ITYPE_GOLD) {
+		if (plr[myplr].SpdList[4]._itype != ITYPE_NONE && plr[myplr].SpdList[4]._itype != ITYPE_GOLD && !((repeatLeftClick || repeatRightClick) && plr[myplr].SpdList[4]._iMiscId == IMISC_SCROLL)) {
 			UseInvItem(myplr, INVITEM_BELT_FIRST + 4);
 		}
 		return;
 	case '^':
 	case '6':
-		if (plr[myplr].SpdList[5]._itype != ITYPE_NONE && plr[myplr].SpdList[5]._itype != ITYPE_GOLD) {
+		if (plr[myplr].SpdList[5]._itype != ITYPE_NONE && plr[myplr].SpdList[5]._itype != ITYPE_GOLD && !((repeatLeftClick || repeatRightClick) && plr[myplr].SpdList[5]._iMiscId == IMISC_SCROLL)) {
 			UseInvItem(myplr, INVITEM_BELT_FIRST + 5);
 		}
 		return;
 	case '&':
 	case '7':
-		if (plr[myplr].SpdList[6]._itype != ITYPE_NONE && plr[myplr].SpdList[6]._itype != ITYPE_GOLD) {
+		if (plr[myplr].SpdList[6]._itype != ITYPE_NONE && plr[myplr].SpdList[6]._itype != ITYPE_GOLD && !((repeatLeftClick || repeatRightClick) && plr[myplr].SpdList[6]._iMiscId == IMISC_SCROLL)) {
 			UseInvItem(myplr, INVITEM_BELT_FIRST + 6);
 		}
 		return;
@@ -1312,7 +1312,7 @@ void PressChar(int vkey)
 			return;
 		}
 #endif
-		if (plr[myplr].SpdList[7]._itype != ITYPE_NONE && plr[myplr].SpdList[7]._itype != ITYPE_GOLD) {
+		if (plr[myplr].SpdList[7]._itype != ITYPE_NONE && plr[myplr].SpdList[7]._itype != ITYPE_GOLD && !((repeatLeftClick || repeatRightClick) && plr[myplr].SpdList[7]._iMiscId == IMISC_SCROLL)) {
 			UseInvItem(myplr, INVITEM_BELT_FIRST + 7);
 		}
 		return;
