@@ -37,8 +37,12 @@ char sgbMouseDown;
 int color_cycle_timer;
 
 //auto attack vars
-BOOL repeatLeftClick;
 BOOL attackInPlace;
+BOOL repeatLeftClick;
+BOOL repeatRightClick;
+
+DWORD lastLeftClickTime;
+DWORD lastRightClickTime;
 
 //hotkey variables
 int keybindings[5];  
@@ -149,8 +153,17 @@ static bool ProcessInput()
 		CheckCursMove();
 		plrctrls_after_check_curs_move();
 		track_process();  //do auto walking if needed
-        if (repeatLeftClick) {  //if repeat attack flag is set, try to attack/move to mouse pos
+        DWORD tick = SDL_GetTicks();
+        if (repeatLeftClick && tick - lastLeftClickTime >= 50 && (plr[myplr]._pVar8 > 6 || plr[myplr]._pmode == PM_STAND)) {  //if repeat attack flag is set, try to attack/move to mouse pos
             TryLeftClickDungeonCommand(attackInPlace);
+            lastLeftClickTime = tick;
+        }
+        if (repeatRightClick && tick - lastRightClickTime >= 300 && (plr[myplr]._pVar8 > 6 || plr[myplr]._pmode == PM_STAND)) {  //right now both of these cause an extra action to repeat at the end
+            //probably because of how the player command system works
+            //can try to fix using the delayed update ala track
+            //timer may be bad for left click changes?
+            CheckPlrSpell();
+            lastRightClickTime = tick;
         }
 	}
 
@@ -239,6 +252,7 @@ void start_game(unsigned int uMsg)
 	sgbMouseDown = 0;
 	track_repeat_walk(FALSE);
     repeatLeftClick = FALSE;
+    repeatRightClick = FALSE;
     attackInPlace = FALSE;
 }
 
@@ -580,6 +594,7 @@ LRESULT GM_Game(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		GetMousePos(lParam);
 		if (sgbMouseDown == 2) {
 			sgbMouseDown = 0;
+            repeatRightClick = FALSE;
 		}
 		return 0;
 	case WM_CAPTURECHANGED:
@@ -587,6 +602,7 @@ LRESULT GM_Game(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			sgbMouseDown = 0;
 			track_repeat_walk(FALSE);
             repeatLeftClick = FALSE;
+            repeatRightClick = FALSE;
 		}
 		break;
 	case WM_DIABNEXTLVL:
@@ -605,6 +621,7 @@ LRESULT GM_Game(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		music_stop();
 		track_repeat_walk(FALSE);
         repeatLeftClick = FALSE;
+        repeatRightClick = FALSE;
 		sgbMouseDown = 0;
 		ShowProgress(uMsg);
 		force_redraw = 255;
@@ -694,6 +711,7 @@ BOOL LeftMouseCmd(BOOL bShift)
 		} 
         else if (TryLeftClickDungeonCommand(bShift)) {  //check for attack/walk
 			repeatLeftClick = TRUE;
+            lastLeftClickTime = SDL_GetTicks() - 50;
             return FALSE;
 		}
 	}
@@ -831,8 +849,13 @@ void RightMouseDown()
 			        && !TryIconCurs()
 			        && (pcursinvitem == -1 || !UseInvItem(myplr, pcursinvitem))) {
 				if (pcurs == 1) {
-					if (pcursinvitem == -1 || !UseInvItem(myplr, pcursinvitem))
-						CheckPlrSpell();
+					if (pcursinvitem == -1 || !UseInvItem(myplr, pcursinvitem)) {
+						sprintf(tempstr, "Attempting to cast spell.");
+                        NetSendCmdString(1 << myplr, tempstr);
+                        CheckPlrSpell();  //cast the spell
+                        repeatRightClick = TRUE;
+                        lastRightClickTime = SDL_GetTicks() - 50;
+                    }
 				} else if (pcurs > CURSOR_HAND && pcurs < CURSOR_FIRSTITEM) {
 					SetCursor_(CURSOR_HAND);
 				}
@@ -868,10 +891,6 @@ void diablo_hotkey_msg(DWORD dwMsg)
 
 void ReleaseKey(int vkey)
 {
-    /*
-    sprintf(tempstr, "ReleaseKey %i", vkey);
-    NetSendCmdString(1 << myplr, tempstr);
-    */
     if (vkey == keybindings[HK_ATTACK_IN_PLACE]){
         attackInPlace = FALSE;
         if (repeatLeftClick){
@@ -922,6 +941,7 @@ void PressKey(int vkey)
 		if (!PressEscKey()) {
 			track_repeat_walk(FALSE);
             repeatLeftClick = FALSE;
+            repeatRightClick = FALSE;
 			gamemenu_on();
 		}
 		return;
@@ -957,6 +977,7 @@ void PressKey(int vkey)
 			AddPanelString("while in stores", TRUE);
 			track_repeat_walk(FALSE);
             repeatLeftClick = FALSE;
+            repeatRightClick = FALSE;
 		} else {
 			invflag = FALSE;
 			chrflag = FALSE;
@@ -1102,6 +1123,7 @@ void PressKey(int vkey)
             if (TryLeftClickDungeonCommand(TRUE)) {
                 track_repeat_walk(FALSE);
                 repeatLeftClick = TRUE;
+                lastLeftClickTime = SDL_GetTicks() - 50;
             }
         }
     }
@@ -1117,6 +1139,7 @@ void diablo_pause_game()
 			FreeMonsterSnd();
 			track_repeat_walk(FALSE);
             repeatLeftClick = FALSE;
+            repeatRightClick = FALSE;
 		}
 		force_redraw = 255;
 	}
@@ -1211,6 +1234,7 @@ void PressChar(int vkey)
 			}
 			track_repeat_walk(FALSE);
             repeatLeftClick = FALSE;
+            repeatRightClick = FALSE;
 		}
 		return;
 	case 'B':
