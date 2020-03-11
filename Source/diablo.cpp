@@ -154,14 +154,13 @@ static bool ProcessInput()
 		plrctrls_after_check_curs_move();
 		track_process();  //do auto walking if needed
         DWORD tick = SDL_GetTicks();
-        if (repeatLeftClick && tick - lastLeftClickTime >= 5) {  //if repeat attack flag is set, try to attack/move to mouse pos
+        //if half of the animation time has passed, try to repeat the attack
+        if (repeatLeftClick && (int)(tick - lastLeftClickTime) >= 290 && (plr[myplr]._pAnimFrame > plr[myplr]._pAnimLen / 2 || plr[myplr]._pmode == PM_STAND)) {
             TryLeftClickDungeonCommand(attackInPlace);
             lastLeftClickTime = tick;
         }
-        if (repeatRightClick && tick - lastRightClickTime >= 300 && (plr[myplr]._pVar8 > 6 || plr[myplr]._pmode == PM_STAND)) {  //right now both of these cause an extra action to repeat at the end
-            //probably because of how the player command system works
-            //can try to fix using the delayed update ala track
-            //timer may be bad for left click changes?
+        //_pVar8 seems to be used for current casting animation frame (but not for attacking?)
+        if (repeatRightClick && (int)(tick - lastRightClickTime) >= 400 && (plr[myplr]._pAnimFrame > plr[myplr]._pAnimLen / 2 || plr[myplr]._pmode == PM_STAND)) {
             CheckPlrSpell();
             lastRightClickTime = tick;
         }
@@ -719,7 +718,7 @@ BOOL LeftMouseCmd(BOOL bShift)
 	return FALSE;
 }
 
-//returns true if we should attack, false otherwise
+//returns true if we should attack or walk, false otherwise
 BOOL TryLeftClickDungeonCommand(BOOL bShift) {
     if (leveltype == DTYPE_TOWN) {
         return FALSE;
@@ -850,9 +849,7 @@ void RightMouseDown()
 			        && (pcursinvitem == -1 || !UseInvItem(myplr, pcursinvitem))) {
 				if (pcurs == 1) {
 					if (pcursinvitem == -1 || !UseInvItem(myplr, pcursinvitem)) {
-						sprintf(tempstr, "Attempting to cast spell.");
-                        NetSendCmdString(1 << myplr, tempstr);
-                        CheckPlrSpell();  //cast the spell
+						CheckPlrSpell();  //cast the spell
                         repeatRightClick = TRUE;
                         lastRightClickTime = SDL_GetTicks() - 50;
                     }
@@ -894,6 +891,7 @@ void ReleaseKey(int vkey)
     if (vkey == keybindings[HK_ATTACK_IN_PLACE]){
         attackInPlace = FALSE;
         if (repeatLeftClick){
+            /*
             if (TryLeftClickDungeonCommand(FALSE)) {
                 return;
             }
@@ -901,6 +899,7 @@ void ReleaseKey(int vkey)
                 track_repeat_walk(TRUE);
                 repeatLeftClick = FALSE;
             }
+            */
         }
     }
 	if (vkey == VK_SNAPSHOT)
@@ -1021,28 +1020,28 @@ void PressKey(int vkey)
 #endif
 
     //changing the hotkeys for spells
-	else if (vkey == keybindings[0]) {
+	else if (vkey == keybindings[HK_SPELL_ZERO]) {
 		if (spselflag) {
 			SetSpeedSpell(0);
 			return;
 		}
 		ToggleSpell(0);
 		return;
-	} else if (vkey == keybindings[1]) {
+	} else if (vkey == keybindings[HK_SPELL_ONE]) {
 		if (spselflag) {
 			SetSpeedSpell(1);
 			return;
 		}
 		ToggleSpell(1);
 		return;
-	} else if (vkey == keybindings[2]) {
+	} else if (vkey == keybindings[HK_SPELL_TWO]) {
 		if (spselflag) {
 			SetSpeedSpell(2);
 			return;
 		}
 		ToggleSpell(2);
 		return;
-	} else if (vkey == keybindings[3]) {
+	} else if (vkey == keybindings[HK_SPELL_THREE]) {
 		if (spselflag) {
 			SetSpeedSpell(3);
 			return;

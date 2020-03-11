@@ -33,7 +33,7 @@ int plrxoff[9] = { 0, 2, 0, 2, 1, 0, 1, 2, 1 };
 int plryoff[9] = { 0, 2, 2, 0, 1, 1, 0, 1, 2 };
 int plrxoff2[9] = { 0, 1, 0, 1, 2, 0, 1, 2, 2 };
 int plryoff2[9] = { 0, 0, 1, 1, 0, 2, 2, 1, 2 };
-char PlrGFXAnimLens[][11] = {
+char PlrGFXAnimLens[][11] = {  //is index 5 spell casting time?
 	{ 10, 16, 8, 2, 20, 20, 6, 20, 8, 9, 14 },
 	{ 8, 18, 8, 4, 20, 16, 7, 20, 8, 10, 12 },
 	{ 8, 16, 8, 6, 20, 12, 8, 20, 8, 12, 8 },
